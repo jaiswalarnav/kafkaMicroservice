@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+  user-service:
+    image: 'user-service'
+    ports:
+      - 9001:9001
+
+  contact-service:
+    image: 'contact-service'
+    ports:
+      - 9002:9002
+    
+  api-gateway:
+    image: 'apigateway'
+    ports:
+      - 8999:8999
+
+  e-server:
+    image: 'e-server'
+    ports:
+      - 8761:8761
+  
+  zookeeper:
+    image: 'wurstmeister/zookeeper'
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+
+  kafka:
+    image: 'wurstmeister/kafka'
+    ports:
+      - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+     
+     
