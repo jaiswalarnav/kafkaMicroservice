@@ -1,0 +1,32 @@
+package com.user.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import com.user.model.User;
+//import com.user.repository.UserRepository;
+import com.user.service.UserService;
+
+@Service
+public class UserServiceImpl implements UserService {
+	
+	@KafkaListener(
+			topics="contactList",
+			groupId="consumerGroup")
+	
+	List<User> list=List.of(new User(1311L,"Arnav Jaiswal","9661518389"),
+			new User(1312L,"Aditya Jaiswal","9939056844"),
+			new User(1314L,"Aarav Jaiswal","7870834798"),
+			new User(1315L,"Anubhav Jaiswal","8987344156"));
+	
+	public User getUser(Long id) {
+	
+		return list.stream().filter(user->user.getUserId().equals(id)).findAny().orElse(null);
+	
+	
+	}
+
+}

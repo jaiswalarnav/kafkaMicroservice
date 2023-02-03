@@ -1,0 +1,59 @@
+package com.user;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.Deserializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.web.client.RestTemplate;
+
+import com.user.model.Contact;
+
+@EnableKafka
+@SpringBootApplication
+public class UserServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(UserServiceApplication.class, args);
+		
+	}
+		
+		@Bean
+		@LoadBalanced
+		public RestTemplate restTemplate()
+		{
+			return new RestTemplate();
+		}
+		
+		
+		@Bean
+		public ConsumerFactory<String, List<Contact>> consumerFactory(){
+			Map<String, Object> config=new HashMap<String, Object>();
+			
+			config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+			config.put(ConsumerConfig.GROUP_ID_CONFIG, "consumerGroup1");
+			config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,StringDeserializer.class);
+			config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+			
+			return new DefaultKafkaConsumerFactory<String, List<Contact>>(config, new StringDeserializer(), new JsonDeserializer<>());
+		}
+		
+		@Bean
+		public ConcurrentKafkaListenerContainerFactory<String,List<Contact>> concurrentKafkaListenerContainerFactory() {
+			ConcurrentKafkaListenerContainerFactory<String , List<Contact>> factory =new ConcurrentKafkaListenerContainerFactory<String, List<Contact>>();
+			factory.setConsumerFactory(consumerFactory());
+			return factory;
+		}
+
+}
